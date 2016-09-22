@@ -1,6 +1,8 @@
 import sys
 import mido
 
+import notes
+
 # See https://github.com/rogerallen/dxsyx/blob/master/dx7-sysex-format.txt
 
 def stream(data):
@@ -27,6 +29,15 @@ class Voice:
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+DOCUMENTED_NAMES = {
+    'ams': 'Amp Mod Sense'
+}
+
+_LIN = 0
+_EXP = 1
+EXP = 2
+LIN = 3
+
 class Operator:
     def __init__(self):
         # Default voice according to DX7
@@ -37,7 +48,8 @@ class Operator:
         self.detu = 7 # I think offset by 7
         self.egr = [99, 99, 99, 99]
         self.egl = [99, 99, 99, 0]
-        self.
+        self.lsbp = getattr(notes, 'A-1')
+        self.lslc = -LIN
         pass
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -240,3 +252,5 @@ for message in messages:
     dump_voice(voice2)
     print "done"
     print voice1 == voice2
+
+    print getattr(notes, 'C-1')
