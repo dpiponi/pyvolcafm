@@ -14,7 +14,7 @@ def stream(data):
 class Voice:
     def __init__(self):
         # Default voice according to DX7
-        self.operators = [Operator() for i in xrange(6)]
+        self.operators = [Operator(i) for i in xrange(5, -1, -1)]
         self.algo = 0
         self.fdbk = 0
         self.lfow = 0 # Triangle
@@ -25,12 +25,21 @@ class Voice:
         self.lfok = 1
         self.msp = 3
         self.oks = 1
+        self.ptr = [99, 99, 99, 99]
+        self.ptl = [50, 50, 50, 50]
+        self.trsp = notes.C3-notes.C1
+        self.name = 'INIT VOICE'
         pass
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
 DOCUMENTED_NAMES = {
-    'ams': 'Amp Mod Sense'
+    'egr': 'Envelope Rates',
+    'egl': 'Envelope Levels',
+    'lsbp': 'Level Scale Break Point',
+    'ams': 'Amp Modulation Sensitivity 0-3',
+    'lamd': 'Amp Modulation Depth 0-99. Controls LFO amplitude modulation depth for all operators.',
+    'lpmd': 'Amp Modulation Depth 0-99. Controls LFO pich modulation depth for all operators.',
 }
 
 _LIN = 0
@@ -39,7 +48,7 @@ EXP = 2
 LIN = 3
 
 class Operator:
-    def __init__(self):
+    def __init__(self, i):
         # Default voice according to DX7
         self.ams = 0
         self.oscm = 0
@@ -49,8 +58,16 @@ class Operator:
         self.egr = [99, 99, 99, 99]
         self.egl = [99, 99, 99, 0]
         self.lsbp = getattr(notes, 'A-1')
-        self.lslc = -LIN
-        pass
+        self.lslc = _LIN
+        self.lsrc = _LIN
+        self.lsld = 0
+        self.lsrd = 0
+        if i==0:
+            self.olvl = 99
+        else:
+            self.olvl = 0
+        self.ors = 0 # ???
+        self.kvs = 0
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
@@ -68,7 +85,7 @@ def operator_from_stream(strm):
 
 # Reasonably tested
 def operator_from_packed_stream(strm):
-    operator = Operator()
+    operator = Operator(0)
     operator.egr = [strm.next() for i in xrange(4)]
     operator.egl = [strm.next() for i in xrange(4)]
     # print "Break data"
@@ -252,5 +269,9 @@ for message in messages:
     dump_voice(voice2)
     print "done"
     print voice1 == voice2
+
+    print "======"
+    voice = Voice()
+    dump_voice(voice)
 
     print getattr(notes, 'C-1')
