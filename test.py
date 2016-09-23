@@ -1,5 +1,6 @@
 import sys
 import mido
+import nose
 
 import notes
 
@@ -37,9 +38,13 @@ DOCUMENTED_NAMES = {
     'egr': 'Envelope Rates',
     'egl': 'Envelope Levels',
     'lsbp': 'Level Scale Break Point',
-    'ams': 'Amp Modulation Sensitivity 0-3',
+    'ams': 'Amp Modulation Sensitivity 0-3. Per operator.',
+    'pms': 'Amp Modulation Sensitivity 0-7. Per operator.',
     'lamd': 'Amp Modulation Depth 0-99. Controls LFO amplitude modulation depth for all operators.',
     'lpmd': 'Amp Modulation Depth 0-99. Controls LFO pich modulation depth for all operators.',
+    'lfor': 'LFO Rate 0-99. 0 => ~0.1 Hz. 99 => ~60 Hz.',
+    'lfod': 'LFO Delay',
+    'lfok': 'LFO Key Sync.',
 }
 
 _LIN = 0
@@ -230,6 +235,9 @@ messages = mido.read_syx_file('Syx/SynprezFM_11.syx')
 def parse_voice(stream):
     for i in xrange(128):
         strm.next()
+
+def test():
+    assert True
 
 for message in messages:
     strm = stream(message.data)
