@@ -17,7 +17,8 @@ import notes
 class Voice:
     def __init__(self):
         # Default voice according to DX7
-        self.operators = [Operator(i) for i in xrange(5, -1, -1)]
+        self.operators = [Operator() for i in xrange(5, -1, -1)]
+        self.operators[0].olvl = 99
         self.algo = 0
         self.fdbk = 0
         self.lfow = 0 # Triangle
@@ -55,7 +56,7 @@ EXP = 2
 LIN = 3
 
 class Operator:
-    def __init__(self, i):
+    def __init__(self):
         # Default voice according to DX7
         self.ams = 0
         self.oscm = 0
@@ -69,10 +70,7 @@ class Operator:
         self.lsrc = _LIN
         self.lsld = 0
         self.lsrd = 0
-        if i==0:
-            self.olvl = 99
-        else:
-            self.olvl = 0
+        self.olvl = 0
         self.ors = 0 # ???
         self.kvs = 0
     def __eq__(self, other):
@@ -270,3 +268,18 @@ def expect_byte(strm, b, e):
 def parse_voice(stream):
     for i in xrange(128):
         strm.next()
+
+def read_sysex_file(filename):
+    f = open(filename, 'rb')
+    d = tuple(map(ord, list(f.read())))
+    assert d[0] == 0xf0
+    assert d[-1] == 0xf7
+    return d[1:-1]
+
+def write_sysex_file(filename, strm):
+    file = open(filename,'wb')
+    data = str("".join(map(unichr,strm)))
+    file.write(b'\xf0')
+    file.write(data)
+    file.write(b'\xf7')
+    file.close()
