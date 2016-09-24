@@ -1,0 +1,1 @@
+PYTHONPATH=. nosetests tests/test.py

@@ -1,16 +1,18 @@
 import sys
 import mido
 import nose
+import itertools
 
 import notes
 
 # See https://github.com/rogerallen/dxsyx/blob/master/dx7-sysex-format.txt
+# Also http://synthify.com/ChromaticArchive/MIDI/DX7-II-SYSEX.pdf
 
-def stream(data):
-    for i in xrange(len(data)):
-        b = data[i]
-        # print i, len(data), b, str(unichr(b))
-        yield b
+#def stream(data):
+#    for i in xrange(len(data)):
+#        b = data[i]
+#        # print i, len(data), b, str(unichr(b))
+#        yield b
 
 class Voice:
     def __init__(self):
@@ -59,10 +61,10 @@ class Operator:
         self.oscm = 0
         self.frec = 1
         self.fref = 0
-        self.detu = 7 # I think offset by 7
+        self.detu = 7 # I think 0 offset by 7
         self.egr = [99, 99, 99, 99]
         self.egl = [99, 99, 99, 0]
-        self.lsbp = getattr(notes, 'A-1')
+        self.lsbp = getattr(notes, 'A-1') # 39?
         self.lslc = _LIN
         self.lsrc = _LIN
         self.lsld = 0
@@ -97,8 +99,8 @@ def operator_from_packed_stream(strm):
     for attr in ['lsbp', 'lsld', 'lsrd']:
         setattr(operator, attr, strm.next())
     packed_data = strm.next()
-    operator.lslc = packed_data & 3
-    operator.lsrc = (packed_data >> 2) & 3
+    operator.lslc = packed_data & 0x3
+    operator.lsrc = (packed_data >> 2) & 0x3
     packed_data = strm.next()
     operator.ors = packed_data & 0x7
     operator.detu = (packed_data >> 3) & 0xf
@@ -108,7 +110,7 @@ def operator_from_packed_stream(strm):
     # print "Reading olvl"
     operator.olvl = strm.next()
     packed_data = strm.next()
-    operator.oscm = packed_data & 1
+    operator.oscm = packed_data & 0x1
     operator.frec = (packed_data >> 1) & 0x1f
     operator.fref = strm.next()
 
@@ -123,7 +125,7 @@ def packed_stream_from_operator(operator):
         yield getattr(operator, attr)
     yield operator.lslc | operator.lsrc << 2
     yield operator.ors | operator.detu << 3
-    yield operator.ams | operator.kvs << 2
+    yield operator.ams | operator.kvs << 2 # top bit may be set?
     yield operator.olvl
     yield operator.oscm | operator.frec << 1
     yield operator.fref
@@ -179,6 +181,42 @@ def voice_from_packed_stream(strm):
 
     return voice
 
+def bank_from_packed_stream(strm):
+    expect_byte(strm, 67, "Not Yamaha")
+    expect_byte(strm, 0, "sub_status != 0")
+    expect_byte(strm, 9, "Not 32 voice format")
+    expect_byte(strm, 32, "Not MSB of 4096 bytes")
+    expect_byte(strm, 0, "Not LSB of 4096 bytes")
+    voices = []
+    bytes = list(itertools.islice(strm, 0, 32*128))
+    strm2 = iter(bytes)
+    for i in xrange(32):
+        voice = voice_from_packed_stream(strm2)
+        voices.append(voice)
+        # dump_voice(voice)
+        # print "Voice", i, "read."
+    # print "Data read"
+    checksum = strm.next()
+    print "checksum =", hex(checksum)
+    s = -sum(bytes) & 0x7f
+    print "actual sum =", hex(s)
+    assert s == checksum
+    return voices
+
+def packed_stream_from_bank(voices):
+    yield 67
+    yield 0
+    yield 9
+    yield 32
+    yield 0
+    s = 0
+    for i in xrange(32):
+        voice_gen = packed_stream_from_voice(voices[i])
+        for b in voice_gen:
+            s += b
+            yield b
+    yield -s & 0x7f
+
 def packed_stream_from_voice(voice):
     for i in xrange(5, -1, -1):
         for b in packed_stream_from_operator(voice.operators[i]):
@@ -190,7 +228,7 @@ def packed_stream_from_voice(voice):
         yield l
 
     yield voice.algo
-    yield voice.fdbk | voice.oks << 3
+    yield voice.fdbk | voice.oks << 3 # Top bits may be set?
     for attr in ['lfor', 'lfod', 'lpmd', 'lamd']:
         yield getattr(voice, attr)
     yield voice.lfok | voice.lfow << 1 | voice.msp << 4
@@ -229,57 +267,6 @@ def expect_byte(strm, b, e):
         print e
         sys.exit(1)
 
-# messages = mido.read_syx_file('Syx/Dexed_01.syx')
-messages = mido.read_syx_file('Syx/SynprezFM_11.syx')
-
 def parse_voice(stream):
     for i in xrange(128):
         strm.next()
-
-def test():
-    assert True
-
-for message in messages:
-    strm = stream(message.data)
-    expect_byte(strm, 67, "Not Yamaha")
-    expect_byte(strm, 0, "sub_status != 0")
-    expect_byte(strm, 9, "Not 32 voice format")
-    expect_byte(strm, 32, "Not MSB of 4096 bytes")
-    expect_byte(strm, 0, "Not LSB of 4096 bytes")
-    voices = []
-    for i in xrange(32):
-        voice = voice_from_packed_stream(strm)
-        voices.append(voice)
-        dump_voice(voice)
-        # print "Voice", i, "read."
-    # print "Data read"
-    checksum = strm.next()
-    print "checksum =", hex(checksum)
-    s = sum(message.data[5:5+4096])
-    print "actual sum =", hex((-s & 0x7f))
-    # print vars(voice)
-
-    op1 = voices[0].operators[0]
-    s = packed_stream_from_operator(op1)
-    op2 = operator_from_packed_stream(iter(s))
-
-    dump_operator(op1)
-    dump_operator(op2)
-    print op1 == op2
-
-    print "Testing voice/stream"
-    voice1 = voices[0]
-    print "Packing"
-    dump_voice(voice1)
-    s = packed_stream_from_voice(voice1)
-    print "unpacking"
-    voice2 = voice_from_packed_stream(iter(s))
-    dump_voice(voice2)
-    print "done"
-    print voice1 == voice2
-
-    print "======"
-    voice = Voice()
-    dump_voice(voice)
-
-    print getattr(notes, 'C-1')
