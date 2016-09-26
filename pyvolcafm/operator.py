@@ -6,8 +6,8 @@ _EXP = 1
 EXP = 2
 LIN = 3
 
-ATTR_RANGES = [
-#    'egr': 100, 'egl':100,
+OPERATOR_ATTR_RANGES = [
+#    ('egr', 100), ('egl', 100),
     ('lsbp', 100),
     ('lsld', 100), ('lsrd', 100),
     ('lslc', 4), ('lsrc', 4),
@@ -33,6 +33,20 @@ class Operator:
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
+    def test_integrity(self):
+        for o in self.egr:
+            if o < 0 or o > 99:
+                return False
+        for o in self.egl:
+            if o < 0 or o > 99:
+                return False
+        for attr, limit in OPERATOR_ATTR_RANGES:
+            value = getattr(self, attr)
+            if value < 0 or value >= limit:
+                print attr, "value =", value, "limit =", limit
+                return False
+        return True
+
     @classmethod
     def random(cls):
         operator = Operator()
@@ -40,7 +54,7 @@ class Operator:
         operator.egr = [random.randrange(100) for i in xrange(4)]
         operator.egl = [random.randrange(100) for i in xrange(4)]
 
-        for attr, limit in ATTR_RANGES:
+        for attr, limit in OPERATOR_ATTR_RANGES:
             setattr(operator, attr, random.randrange(limit))
 
         return operator

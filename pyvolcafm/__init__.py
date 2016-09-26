@@ -41,9 +41,7 @@ def bank_from_packed_stream(strm):
         # print "Voice", i, "read."
     # print "Data read"
     checksum = strm.next()
-    print "checksum =", hex(checksum)
     s = -sum(bytes) & 0x7f
-    print "actual sum =", hex(s)
     assert s == checksum
     return voices
 
