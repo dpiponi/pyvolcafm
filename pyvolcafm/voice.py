@@ -48,7 +48,7 @@ class Voice:
         voice.msp = (packed_data >> 4) & 0x7
         voice.trsp = strm.next()
         bytes = [strm.next() for i in xrange(10)]
-        chars = [unichr(i) for i in bytes]
+        chars = [chr(i) for i in bytes]
         voice.name = str("".join(chars))
 
         return voice
@@ -110,7 +110,7 @@ def voice_from_stream(strm):
                  'lfow', 'msp', 'trsp']:
         setattr(voice, attr, strm.next())
     # print "Reading name"
-    voice.name = str("".join([unichr(strm.next())
+    voice.name = str("".join([chr(strm.next())
                               for i in xrange(10)]))
     ons = strm.next()
     voice.on = [1 if (ons & 1<<i) else 0 for i in range(6)]
