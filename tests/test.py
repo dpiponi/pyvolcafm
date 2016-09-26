@@ -1,3 +1,4 @@
+import tempfile
 import mido
 import os
 import filecmp
@@ -89,5 +90,9 @@ def test_3():
 def test_4():
     data = iter(read_sysex_file(TEST_DATA))
     voices = bank_from_packed_stream(data)
-    write_sysex_file('test.syx', packed_stream_from_bank(voices))
-    assert filecmp.cmp(TEST_DATA, 'test.syx')
+    name = tempfile.mkdtemp()
+    temp_file_name = os.path.join(name, 'test.syx')
+    write_sysex_file(temp_file_name, packed_stream_from_bank(voices))
+    assert filecmp.cmp(TEST_DATA, temp_file_name)
+    os.remove(temp_file_name)
+    os.rmdir(name)

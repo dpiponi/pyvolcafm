@@ -80,7 +80,6 @@ def read_sysex_file(filename):
 
 def write_sysex_file(filename, strm):
     file = open(filename,'wb')
-#    data = str("".join(map(chr,strm)))
     file.write(b'\xf0')
     data = bytearray(strm)
     file.write(data)
