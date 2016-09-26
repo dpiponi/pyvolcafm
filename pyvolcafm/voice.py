@@ -25,6 +25,13 @@ class Voice:
         pass
 
     @classmethod
+    def random(cls):
+        voice = Voice()
+        # unfinished
+        voice.operators = [Operator.random() for i in xrange(0, 6)]
+        return voice
+
+    @classmethod
     def from_packed_stream(cls, strm):
         voice = Voice()
         # print "Starting a voice"

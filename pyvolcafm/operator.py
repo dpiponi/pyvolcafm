@@ -1,31 +1,49 @@
 import notes
+import random
 
 _LIN = 0
 _EXP = 1
 EXP = 2
 LIN = 3
 
+ATTR_RANGES = [
+#    'egr': 100, 'egl':100,
+    ('lsbp', 100),
+    ('lsld', 100), ('lsrd', 100),
+    ('lslc', 4), ('lsrc', 4),
+    ('ors', 8), ('ams', 4), ('kvs', 8),
+    ('olvl', 100), ('oscm', 2),
+    ('frec', 32), ('fref', 100), ('detu', 15)
+]
+
 class Operator:
     def __init__(self):
         # Default voice according to DX7
-        self.ams = 0
-        self.oscm = 0
-        self.frec = 1
-        self.fref = 0
-        self.detu = 7 # I think 0 offset by 7
-        self.egr = [99, 99, 99, 99]
-        self.egl = [99, 99, 99, 0]
-        self.lsbp = getattr(notes, 'A-1') # 39?
-        self.lslc = _LIN
-        self.lsrc = _LIN
-        self.lsld = 0
-        self.lsrd = 0
-        self.olvl = 0
-        self.ors = 0 # ???
-        self.kvs = 0
+        for attr, value in [
+                ('ams', 0), ('oscm', 0),
+                ('frec', 1), ('fref', 0), ('detu', 7),
+                ('egr', 4*[99]), ('egl', 3*[99]+[0]),
+                ('lsbp', getattr(notes, 'A-1')),
+                ('lslc', _LIN), ('lsrc', _LIN),
+                ('lsld', 0), ('lsrd', 0),
+                ('olvl', 0), ('ors', 0), ('kvs', 0)
+            ]:
+            setattr(self, attr, value)
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
+
+    @classmethod
+    def random(cls):
+        operator = Operator()
+
+        operator.egr = [random.randrange(100) for i in xrange(4)]
+        operator.egl = [random.randrange(100) for i in xrange(4)]
+
+        for attr, limit in ATTR_RANGES:
+            setattr(operator, attr, random.randrange(limit))
+
+        return operator
 
     @classmethod
     def from_packed_stream(cls, strm):

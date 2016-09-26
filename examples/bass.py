@@ -1,6 +1,5 @@
 from pyvolcafm import *
 
-voice = Voice()
 voices = []
 for i in xrange(32):
     voice = Voice()
