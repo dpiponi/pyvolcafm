@@ -1,5 +1,6 @@
 import mido
 import os
+import filecmp
 
 from pyvolcafm import *
 from pyvolcafm.notes import *
@@ -15,6 +16,10 @@ def test_1():
         strm = iter(message.data)
         voices = bank_from_packed_stream(strm)
 
+# Read in a bunch of sysexes.
+# Convert back to stream.
+# Compare stream for equality with original.
+# Removed some examples because there are badly formed sysex files out there.
 def test_2():
     files = os.listdir('data')
     files.remove('bank0009.syx')
@@ -78,3 +83,11 @@ def test_3():
 
         voice = Voice()
         # dump_voice(voice)
+
+# Test round trip
+# File -> bank of 32 voices -> file
+def test_4():
+    data = iter(read_sysex_file(TEST_DATA))
+    voices = bank_from_packed_stream(data)
+    write_sysex_file('test.syx', packed_stream_from_bank(voices))
+    assert filecmp.cmp(TEST_DATA, 'test.syx')
