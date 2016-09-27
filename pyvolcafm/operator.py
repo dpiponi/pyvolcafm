@@ -36,9 +36,11 @@ class Operator:
     def test_integrity(self):
         for o in self.egr:
             if o < 0 or o > 99:
+                print "egr = ", self.egr
                 return False
         for o in self.egl:
             if o < 0 or o > 99:
+                print "egl = ", self.egl
                 return False
         for attr, limit in OPERATOR_ATTR_RANGES:
             value = getattr(self, attr)
@@ -99,6 +101,13 @@ class Operator:
         yield self.oscm | self.frec << 1
         yield self.fref
 
+    def dump(self):
+        for attr in ['egr', 'egl', 'lsbp', 'lsld',
+                     'lsrd', 'lslc', 'lsrc', 'ors',
+                     'ams', 'kvs', 'olvl', 'oscm',
+                     'frec', 'fref', 'detu']:
+            print attr, "=", getattr(self, attr)
+
 # Untested
 def operator_from_stream(strm):
     operator = Operator()
@@ -111,10 +120,3 @@ def operator_from_stream(strm):
         setattr(operator, attr, strm.next())
 
     return operator
-
-def dump_operator(operator):
-    for attr in ['egr', 'egl', 'lsbp', 'lsld',
-                 'lsrd', 'lslc', 'lsrc', 'ors',
-                 'ams', 'kvs', 'olvl', 'oscm',
-                 'frec', 'fref', 'detu']:
-        print attr, "=", getattr(operator, attr)

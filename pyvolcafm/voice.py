@@ -3,6 +3,21 @@
 import notes
 from operator import *
 
+VOICE_ATTR_RANGES = [
+        ('algo', 32),
+        ('fdbk', 8),
+        ('lfow', 6),
+        ('lfor', 100),
+        ('lfod', 100),
+        ('lpmd', 100),
+        ('lamd', 100),
+        ('lfok', 2),
+        ('msp', 8),
+        ('oks', 2),
+        #'ptr' = [99, 99, 99, 99]
+        #'ptl' = [50, 50, 50, 50]
+        ('trsp', 49)]
+
 class Voice:
     def __init__(self):
         # Default voice according to DX7
@@ -23,6 +38,26 @@ class Voice:
         self.trsp = notes.C3-notes.C1
         self.name = 'INIT VOICE'
         pass
+
+    def test_integrity(self):
+        for o in self.ptr:
+            if o < 0 or o > 99:
+                print "ptr = ", self.ptr
+                return False
+        for o in self.ptl:
+            if o < 0 or o > 99:
+                print "ptl = ", self.ptl
+                return False
+        for attr, limit in VOICE_ATTR_RANGES:
+            value = getattr(self, attr)
+            if value < 0 or value >= limit:
+                print attr, "value =", value, "limit =", limit
+                return False
+        for operator in self.operators:
+            if not operator.test_integrity():
+                print "Bad operator"
+                return False
+        return True
 
     @classmethod
     def random(cls):

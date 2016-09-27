@@ -9,6 +9,16 @@ from notes import *
 from operator import *
 from voice import *
 
+algorithms = [
+    {'out':(1, 3), 1:2, 3:4, 4:5, 5:6, 6:6},
+    {'out':(1, 3), 1:2, 2:2, 3:4, 4:5, 5:6},
+    {'out':(1, 4), 1:2, 2:3, 4:5, 5:6, 6:6},
+    {'out':(1, 4), 1:2, 2:3, 4:5, 5:6, 6:4},
+    {'out':(1, 3, 5), 1:2, 3:4, 5:6, 6:6},
+    {'out':(1, 3, 5), 1:2, 3:4, 5:6, 6:5},
+    {'out':(1, 3), 1:2, 3:(4, 5), 5:6, 6:6}
+]
+
 # See https://github.com/rogerallen/dxsyx/blob/master/dx7-sysex-format.txt
 # Also http://synthify.com/ChromaticArchive/MIDI/DX7-II-SYSEX.pdf
 
