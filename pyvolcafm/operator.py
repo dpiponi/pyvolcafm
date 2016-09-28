@@ -36,16 +36,16 @@ class Operator:
     def test_integrity(self):
         for o in self.egr:
             if o < 0 or o > 99:
-                print "egr = ", self.egr
+                # print "egr = ", self.egr
                 return False
         for o in self.egl:
             if o < 0 or o > 99:
-                print "egl = ", self.egl
+                # print "egl = ", self.egl
                 return False
         for attr, limit in OPERATOR_ATTR_RANGES:
             value = getattr(self, attr)
             if value < 0 or value >= limit:
-                print attr, "value =", value, "limit =", limit
+                # print attr, "value =", value, "limit =", limit
                 return False
         return True
 

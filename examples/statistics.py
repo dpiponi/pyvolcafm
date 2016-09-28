@@ -2,6 +2,7 @@ import tempfile
 import mido
 import os
 import filecmp
+import re
 import numpy
 
 from pyvolcafm import *
@@ -60,14 +61,29 @@ def compute_operator_statistics():
     voice_counts['ptl2'] = numpy.zeros(100, dtype=numpy.int32)
     voice_counts['ptl3'] = numpy.zeros(100, dtype=numpy.int32)
     voice_counts['ptl4'] = numpy.zeros(100, dtype=numpy.int32)
+
+    file_re = re.compile('.*(string|viol|cello)', re.IGNORECASE)
+    voice_re = re.compile('.*(string|viol|cello)', re.IGNORECASE)
+    file_re = re.compile('.*bass', re.IGNORECASE)
+    voice_re = re.compile('.*bass', re.IGNORECASE)
+    file_re = re.compile('.*(wind|sax|clarinet|flute|oboe)', re.IGNORECASE)
+    voice_re = re.compile('.*(wind|sax|clarinet|flute|oboe)', re.IGNORECASE)
+    file_re = re.compile('.*syn', re.IGNORECASE)
+    voice_re = re.compile('.*syn', re.IGNORECASE)
+    file_re = re.compile('.', re.IGNORECASE)
+    voice_re = re.compile('.', re.IGNORECASE)
     for file in files:
+        doall = False
+        if file_re.match(file):
+            doall = True
         # print file
         data = read_sysex_file('data/'+file)
         strm = iter(data)
         voices = bank_from_packed_stream(strm)
         for voice in voices:
             has_integrity = voice.test_integrity()
-            if has_integrity:
+            if has_integrity and (doall or voice_re.match(voice.name)):
+                print voice.name
                 for attr, _ in VOICE_ATTR_RANGES:
                     voice_counts[attr][getattr(voice, attr)] += 1
                 voice_counts['ptr1'][voice.ptr[0]] += 1
@@ -91,7 +107,7 @@ def compute_operator_statistics():
                     operator_counts['egl3'][operator.egl[2]] += 1
                     operator_counts['egl4'][operator.egl[3]] += 1
             else:
-                print "Rejecting", file, voice.name
+                # print "Rejecting", file, voice.name
                 break
     print operator_counts
     print voice_counts

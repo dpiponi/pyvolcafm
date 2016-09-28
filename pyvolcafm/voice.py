@@ -42,20 +42,20 @@ class Voice:
     def test_integrity(self):
         for o in self.ptr:
             if o < 0 or o > 99:
-                print "ptr = ", self.ptr
+                # print "ptr = ", self.ptr
                 return False
         for o in self.ptl:
             if o < 0 or o > 99:
-                print "ptl = ", self.ptl
+                # print "ptl = ", self.ptl
                 return False
         for attr, limit in VOICE_ATTR_RANGES:
             value = getattr(self, attr)
             if value < 0 or value >= limit:
-                print attr, "value =", value, "limit =", limit
+                # print attr, "value =", value, "limit =", limit
                 return False
         for operator in self.operators:
             if not operator.test_integrity():
-                print "Bad operator"
+                # print "Bad operator"
                 return False
         return True
 
