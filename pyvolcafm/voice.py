@@ -64,6 +64,12 @@ class Voice:
         voice = Voice()
         # unfinished
         voice.operators = [Operator.random() for i in xrange(0, 6)]
+
+        voice.ptr = [random.randrange(100) for i in xrange(4)]
+        voice.ptl = [random.randrange(100) for i in xrange(4)]
+
+        for attr, limit in VOICE_ATTR_RANGES:
+            setattr(voice, attr, random.randrange(limit))
         return voice
 
     @classmethod

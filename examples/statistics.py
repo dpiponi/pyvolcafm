@@ -1,3 +1,6 @@
+"""
+Generate a random patch based on a corpus of existing patches.
+"""
 import tempfile
 import mido
 import os
