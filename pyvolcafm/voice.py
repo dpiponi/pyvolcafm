@@ -18,25 +18,21 @@ VOICE_ATTR_RANGES = [
         #'ptl' = [50, 50, 50, 50]
         ('trsp', 49)]
 
+VOICE_DEFAULT_VALUES = [
+    ('algo', 0), ('fdbk', 0), ('lfow', 0),
+    ('lfor', 35), ('lfod', 0), ('lpmd', 0),
+    ('lamd', 0), ('lfok', 1), ('msp', 3),
+    ('oks', 1), ('ptr', 4*[99]), ('ptl ', 4*[50]),
+    ('trsp', notes.C3-notes.C1), ('name', 'INIT VOICE'),
+]
+
 class Voice:
     def __init__(self):
         # Default voice according to DX7
         self.operators = [Operator() for i in xrange(5, -1, -1)]
         self.operators[0].olvl = 99
-        self.algo = 0
-        self.fdbk = 0
-        self.lfow = 0 # Triangle
-        self.lfor = 35
-        self.lfod = 0
-        self.lpmd = 0
-        self.lamd = 0
-        self.lfok = 1
-        self.msp = 3
-        self.oks = 1
-        self.ptr = [99, 99, 99, 99]
-        self.ptl = [50, 50, 50, 50]
-        self.trsp = notes.C3-notes.C1
-        self.name = 'INIT VOICE'
+        for attr, value in VOICE_DEFAULT_VALUES:
+            setattr(self, attr, value)
         pass
 
     def test_integrity(self):

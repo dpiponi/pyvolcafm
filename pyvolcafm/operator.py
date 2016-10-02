@@ -7,7 +7,6 @@ EXP = 2
 LIN = 3
 
 OPERATOR_ATTR_RANGES = [
-#    ('egr', 100), ('egl', 100),
     ('lsbp', 100),
     ('lsld', 100), ('lsrd', 100),
     ('lslc', 4), ('lsrc', 4),
@@ -16,18 +15,20 @@ OPERATOR_ATTR_RANGES = [
     ('frec', 32), ('fref', 100), ('detu', 15)
 ]
 
+OPERATOR_DEFAULT_VALUES = [
+    ('ams', 0), ('oscm', 0),
+    ('frec', 1), ('fref', 0), ('detu', 7),
+    ('egr', 4*[99]), ('egl', 3*[99]+[0]),
+    ('lsbp', getattr(notes, 'A-1')),
+    ('lslc', _LIN), ('lsrc', _LIN),
+    ('lsld', 0), ('lsrd', 0),
+    ('olvl', 0), ('ors', 0), ('kvs', 0)
+]
+
 class Operator:
     def __init__(self):
         # Default voice according to DX7
-        for attr, value in [
-                ('ams', 0), ('oscm', 0),
-                ('frec', 1), ('fref', 0), ('detu', 7),
-                ('egr', 4*[99]), ('egl', 3*[99]+[0]),
-                ('lsbp', getattr(notes, 'A-1')),
-                ('lslc', _LIN), ('lsrc', _LIN),
-                ('lsld', 0), ('lsrd', 0),
-                ('olvl', 0), ('ors', 0), ('kvs', 0)
-            ]:
+        for attr, value in OPERATOR_DEFAULT_VALUES:
             setattr(self, attr, value)
 
     def __eq__(self, other):
@@ -36,16 +37,15 @@ class Operator:
     def test_integrity(self):
         for o in self.egr:
             if o < 0 or o > 99:
-                # print "egr = ", self.egr
                 return False
+
         for o in self.egl:
             if o < 0 or o > 99:
-                # print "egl = ", self.egl
                 return False
+
         for attr, limit in OPERATOR_ATTR_RANGES:
             value = getattr(self, attr)
             if value < 0 or value >= limit:
-                # print attr, "value =", value, "limit =", limit
                 return False
         return True
 
@@ -78,7 +78,6 @@ class Operator:
         packed_data = strm.next()
         operator.ams = packed_data & 0x3
         operator.kvs = (packed_data >> 2) & 0x7
-        # print "Reading olvl"
         operator.olvl = strm.next()
         packed_data = strm.next()
         operator.oscm = packed_data & 0x1
@@ -96,7 +95,7 @@ class Operator:
             yield getattr(self, attr)
         yield self.lslc | self.lsrc << 2
         yield self.ors | self.detu << 3
-        yield self.ams | self.kvs << 2 # top bit may be set?
+        yield self.ams | self.kvs << 2
         yield self.olvl
         yield self.oscm | self.frec << 1
         yield self.fref
