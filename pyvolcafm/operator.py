@@ -1,5 +1,6 @@
 import notes
 import random
+from exceptions import *
 
 _LIN = 0
 _EXP = 1
@@ -37,16 +38,16 @@ class Operator:
     def test_integrity(self):
         for o in self.egr:
             if o < 0 or o > 99:
-                return False
+                raise OutOfRangeError('egr', o)
 
         for o in self.egl:
             if o < 0 or o > 99:
-                return False
+                raise OutOfRangeError('egl', o)
 
         for attr, limit in OPERATOR_ATTR_RANGES:
             value = getattr(self, attr)
             if value < 0 or value >= limit:
-                return False
+                raise OutOfRangeError(attr, value)
         return True
 
     @classmethod
@@ -62,27 +63,27 @@ class Operator:
         return operator
 
     @classmethod
-    def from_packed_stream(cls, strm):
+    def from_packed_stream(cls, gen):
         operator = Operator()
-        operator.egr = [strm.next() for i in xrange(4)]
-        operator.egl = [strm.next() for i in xrange(4)]
+        operator.egr = [gen.next() for i in xrange(4)]
+        operator.egl = [gen.next() for i in xrange(4)]
         # print "Break data"
         for attr in ['lsbp', 'lsld', 'lsrd']:
-            setattr(operator, attr, strm.next())
-        packed_data = strm.next()
+            setattr(operator, attr, gen.next())
+        packed_data = gen.next()
         operator.lslc = packed_data & 0x3
         operator.lsrc = (packed_data >> 2) & 0x3
-        packed_data = strm.next()
+        packed_data = gen.next()
         operator.ors = packed_data & 0x7
         operator.detu = (packed_data >> 3) & 0xf
-        packed_data = strm.next()
+        packed_data = gen.next()
         operator.ams = packed_data & 0x3
         operator.kvs = (packed_data >> 2) & 0x7
-        operator.olvl = strm.next()
-        packed_data = strm.next()
+        operator.olvl = gen.next()
+        packed_data = gen.next()
         operator.oscm = packed_data & 0x1
         operator.frec = (packed_data >> 1) & 0x1f
-        operator.fref = strm.next()
+        operator.fref = gen.next()
 
         return operator
 
@@ -108,14 +109,14 @@ class Operator:
             print attr, "=", getattr(self, attr)
 
 # Untested
-def operator_from_stream(strm):
+def operator_from_stream(gen):
     operator = Operator()
-    operator.egr = [strm.next() for i in xrange(4)]
-    operator.egl = [strm.next() for i in xrange(4)]
+    operator.egr = [gen.next() for i in xrange(4)]
+    operator.egl = [gen.next() for i in xrange(4)]
     for attr in ['lsbp', 'lsld', 'lsrd', 'lslc',
                  'lsrc', 'ors', 'ams', 'kvs',
                  'olvl', 'oscm', 'frec', 'fref',
                  'detu']:
-        setattr(operator, attr, strm.next())
+        setattr(operator, attr, gen.next())
 
     return operator

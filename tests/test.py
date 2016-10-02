@@ -2,6 +2,7 @@ import tempfile
 import mido
 import os
 import filecmp
+from nose.tools import *
 
 from pyvolcafm import *
 from pyvolcafm.notes import *
@@ -96,3 +97,9 @@ def test_4():
     assert filecmp.cmp(TEST_DATA, temp_file_name)
     os.remove(temp_file_name)
     os.rmdir(name)
+
+@raises(OutOfRangeError)
+def test_5():
+    voice = Voice()
+    voice.operators[0].egr[0] = 100
+    voice.test_integrity()
