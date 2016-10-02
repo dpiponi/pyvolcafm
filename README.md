@@ -13,4 +13,4 @@ The examples assume a large corpus of example patches in the corpus/ directory. 
     Generates a bank of random 32 patches, each with parameters distributed independently with the probability distributions determined by the marginal distributions of parameters in the corpus.
 
 3. examples/markov.py
-    Generates a bank of 32 patches by walking backwards from carriers to modulators assuming that for each parameter type, the values along the walk form a Markov chain whose staistics come from the corpus. (For now, in the case when a modulator modulates more than one operator, the choice of predecessor for the modulator depends on the order in which the operators are walked.)
+    Generates a bank of 32 patches by walking backwards from carriers to modulators assuming that for each parameter type, the values along the walk form a Markov chain whose statistics come from the corpus. (For now, in the case when a modulator modulates more than one operator, the choice of predecessor for the modulator depends on the order in which the operators are walked.)
