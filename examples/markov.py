@@ -82,7 +82,7 @@ def generate_operator_from_statistics(voice, op, counts, previous=None):
                 generate_operator_from_statistics(voice, parent_op, operator_counts_step, operator)
 
 def compute_operator_statistics():
-    files = os.listdir('data')
+    files = os.listdir('corpus')
     files.remove('bank0009.syx')
     files.remove('bank0043.syx')
     files.remove('bank0054.syx')
@@ -160,30 +160,31 @@ def compute_operator_statistics():
         if file_re.match(file):
             doall = True
         # print file
-        data = read_sysex_file('data/'+file)
+        data = read_sysex_file('corpus/'+file)
         strm = iter(data)
         voices = bank_from_packed_stream(strm)
         for voice in voices:
-            has_integrity = voice.test_integrity()
-            if has_integrity and (doall or voice_re.match(voice.name)):
-                print voice.name
-                for attr, _ in VOICE_ATTR_RANGES:
-                    voice_counts[attr][getattr(voice, attr)] += 1
-                voice_counts['ptr1'][voice.ptr[0]] += 1
-                voice_counts['ptr2'][voice.ptr[1]] += 1
-                voice_counts['ptr3'][voice.ptr[2]] += 1
-                voice_counts['ptr4'][voice.ptr[3]] += 1
-                voice_counts['ptl1'][voice.ptl[0]] += 1
-                voice_counts['ptl2'][voice.ptl[1]] += 1
-                voice_counts['ptl3'][voice.ptl[2]] += 1
-                voice_counts['ptl4'][voice.ptl[3]] += 1
-
-                for op in algorithm.ALGORITHMS[voice.algo]['out']:
-                    collect_operator_statistics(voice, op, operator_counts_init)
-
+            try:
+                voice.test_integrity()
+            except:
+                pass
             else:
-                # print "Rejecting", file, voice.name
-                break
+                if doall or voice_re.match(voice.name):
+                    print voice.name
+                    for attr, _ in VOICE_ATTR_RANGES:
+                        voice_counts[attr][getattr(voice, attr)] += 1
+                    voice_counts['ptr1'][voice.ptr[0]] += 1
+                    voice_counts['ptr2'][voice.ptr[1]] += 1
+                    voice_counts['ptr3'][voice.ptr[2]] += 1
+                    voice_counts['ptr4'][voice.ptr[3]] += 1
+                    voice_counts['ptl1'][voice.ptl[0]] += 1
+                    voice_counts['ptl2'][voice.ptl[1]] += 1
+                    voice_counts['ptl3'][voice.ptl[2]] += 1
+                    voice_counts['ptl4'][voice.ptl[3]] += 1
+
+                    for op in algorithm.ALGORITHMS[voice.algo]['out']:
+                        collect_operator_statistics(voice, op, operator_counts_init)
+
     #print operator_counts
     #print voice_counts
 

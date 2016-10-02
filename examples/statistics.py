@@ -18,7 +18,7 @@ def generate_from_counts(counts):
     return numpy.searchsorted(cdf,i,side='right')
 
 def compute_operator_statistics():
-    files = os.listdir('data')
+    files = os.listdir('corpus')
     files.remove('bank0009.syx')
     files.remove('bank0043.syx')
     files.remove('bank0054.syx')
@@ -80,38 +80,39 @@ def compute_operator_statistics():
         if file_re.match(file):
             doall = True
         # print file
-        data = read_sysex_file('data/'+file)
+        data = read_sysex_file('corpus/'+file)
         strm = iter(data)
         voices = bank_from_packed_stream(strm)
         for voice in voices:
-            has_integrity = voice.test_integrity()
-            if has_integrity and (doall or voice_re.match(voice.name)):
-                print voice.name
-                for attr, _ in VOICE_ATTR_RANGES:
-                    voice_counts[attr][getattr(voice, attr)] += 1
-                voice_counts['ptr1'][voice.ptr[0]] += 1
-                voice_counts['ptr2'][voice.ptr[1]] += 1
-                voice_counts['ptr3'][voice.ptr[2]] += 1
-                voice_counts['ptr4'][voice.ptr[3]] += 1
-                voice_counts['ptl1'][voice.ptl[0]] += 1
-                voice_counts['ptl2'][voice.ptl[1]] += 1
-                voice_counts['ptl3'][voice.ptl[2]] += 1
-                voice_counts['ptl4'][voice.ptl[3]] += 1
-                for operator in voice.operators:
-                    operator_count += 1
-                    for attr, _ in OPERATOR_ATTR_RANGES:
-                        operator_counts[attr][getattr(operator, attr)] += 1
-                    operator_counts['egr1'][operator.egr[0]] += 1
-                    operator_counts['egr2'][operator.egr[1]] += 1
-                    operator_counts['egr3'][operator.egr[2]] += 1
-                    operator_counts['egr4'][operator.egr[3]] += 1
-                    operator_counts['egl1'][operator.egl[0]] += 1
-                    operator_counts['egl2'][operator.egl[1]] += 1
-                    operator_counts['egl3'][operator.egl[2]] += 1
-                    operator_counts['egl4'][operator.egl[3]] += 1
+            try:
+                voice.test_integrity()
+            except:
+                pass
             else:
-                # print "Rejecting", file, voice.name
-                break
+                if doall or voice_re.match(voice.name):
+                    print voice.name
+                    for attr, _ in VOICE_ATTR_RANGES:
+                        voice_counts[attr][getattr(voice, attr)] += 1
+                    voice_counts['ptr1'][voice.ptr[0]] += 1
+                    voice_counts['ptr2'][voice.ptr[1]] += 1
+                    voice_counts['ptr3'][voice.ptr[2]] += 1
+                    voice_counts['ptr4'][voice.ptr[3]] += 1
+                    voice_counts['ptl1'][voice.ptl[0]] += 1
+                    voice_counts['ptl2'][voice.ptl[1]] += 1
+                    voice_counts['ptl3'][voice.ptl[2]] += 1
+                    voice_counts['ptl4'][voice.ptl[3]] += 1
+                    for operator in voice.operators:
+                        operator_count += 1
+                        for attr, _ in OPERATOR_ATTR_RANGES:
+                            operator_counts[attr][getattr(operator, attr)] += 1
+                        operator_counts['egr1'][operator.egr[0]] += 1
+                        operator_counts['egr2'][operator.egr[1]] += 1
+                        operator_counts['egr3'][operator.egr[2]] += 1
+                        operator_counts['egr4'][operator.egr[3]] += 1
+                        operator_counts['egl1'][operator.egl[0]] += 1
+                        operator_counts['egl2'][operator.egl[1]] += 1
+                        operator_counts['egl3'][operator.egl[2]] += 1
+                        operator_counts['egl4'][operator.egl[3]] += 1
     print operator_counts
     print voice_counts
 
