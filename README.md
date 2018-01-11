@@ -1,8 +1,14 @@
+PyVolcaFM
+=========
 A small Python library for reading and writing Korg Volca FM/DX7 SysEx files.
 
-(Work in progress.)
+Status
+------
+The code works but I've made little effort to tidy it up.
+I'll return to it when I get a chance...
 
-*Examples*
+Examples
+--------
 
 The examples assume a large corpus of example patches in the corpus/ directory. You can download suitable data from https://homepages.abdn.ac.uk/mth192/pages/html/dx7.html
 
